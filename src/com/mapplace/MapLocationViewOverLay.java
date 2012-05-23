@@ -57,12 +57,32 @@ public class MapLocationViewOverLay  extends Overlay {
 		/**
 		 * Track the popup display
 		 */
-		boolean isRemovePriorPopup = mSelectedMapLocation != null;  
+    boolean isRemovePriorPopup = mSelectedMapLocation != null;  
 
-		/**
-		 *   Return true if we handled this onTap()
-		 */
-		return mSelectedMapLocation != null;
+    /**
+     * Test whether a new popup should display
+     */
+    mSelectedMapLocation = getHitMapLocation(mapView, p);
+    if ( isRemovePriorPopup || mSelectedMapLocation != null) 
+    {
+      mapView.invalidate();
+      if (showWinInfo == true && mSelectedMapLocation != null)
+      {
+        //mLocationViewers.showPlaceDiag(mSelectedMapLocation);
+        mSelectedMapLocation = null;
+        showWinInfo = false;
+      }
+    }   
+    else
+    {
+      showWinInfo = false;
+    }
+    
+
+    /**
+     *   Return true if we handled this onTap()
+     */
+    return mSelectedMapLocation != null;
 	}
 	
     @Override
@@ -85,14 +105,13 @@ public class MapLocationViewOverLay  extends Overlay {
 		
     	RectF hitTestRecr = new RectF();
 		  Point screenCoords = new Point();
-    	Iterator<MapLocation> iterator = mLocationViewers.getMapLocations(false).iterator();
-    	while(iterator.hasNext()) {
-    		MapLocation testLocation = iterator.next();
+  
+    
     		
     		/**
     		 * This is used to translate the map's lat/long coordinates to screen's coordinates
     		 */
-    		mapView.getProjection().toPixels(testLocation.getPoint(), screenCoords);
+    		mapView.getProjection().toPixels(mLocationViewers.nowGeoPoint, screenCoords);
 
 	    	// Create a testing Rectangle with the size and coordinates of our icon
 	    	// Set the testing Rectangle with the size and coordinates of our on screen icon
@@ -102,11 +121,12 @@ public class MapLocationViewOverLay  extends Overlay {
 	    	//  At last test for a match between our Rectangle and the location clicked by the user
     		mapView.getProjection().toPixels(tapPoint, screenCoords);
     		
-    		if (hitTestRecr.contains(screenCoords.x,screenCoords.y)) {
-    			hitMapLocation = testLocation;
-    			break;
+    		if (hitTestRecr.contains(screenCoords.x,screenCoords.y)) 
+    		{
+    			hitMapLocation = new MapLocation("test", null);
+    		
     		}
-    	}
+    	
     	
     	//  Finally clear the new MouseSelection as its process finished
     	tapPoint = null;
@@ -159,7 +179,7 @@ public class MapLocationViewOverLay  extends Overlay {
     		} else {
 				//  First we need to determine the screen coordinates of the selected MapLocation
 				Point selDestinationOffset = new Point();
-				mapView.getProjection().toPixels(mSelectedMapLocation.getPoint(), selDestinationOffset);
+				mapView.getProjection().toPixels(mLocationViewers.nowGeoPoint, selDestinationOffset);
 		    	
 		    	//  Setup the info window
 				int INFO_WINDOW_WIDTH = 230;

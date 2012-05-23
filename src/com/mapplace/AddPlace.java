@@ -37,6 +37,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -80,7 +81,7 @@ public class AddPlace extends Activity
   private int cindex;
   
   private static int DB_VERSION = 1;
-  
+
   private SQLiteDatabase db;
   private SQLiteHelper dbHelper;
   private Cursor cursor;
@@ -218,12 +219,14 @@ public class AddPlace extends Activity
                }
                
                // 判斷目錄是否存在
-               File vPath = new File( vSDCard.getParent() + vSDCard.getName() + "/StoreMap" );
+               File vPath = new File( vSDCard.getParent() + "/" +vSDCard.getName() + "/StoreMap" );
                if( !vPath.exists() )
                   vPath.mkdirs();
                
                FileWriter vFile = new FileWriter( vSDCard.getParent() + "/" + vSDCard.getName() 
                                                                       + "/StoreMap/db.txt" );
+               
+               Log.i(TAG, vSDCard.getParent() + "/" + vSDCard.getName() + "/StoreMap/db.txt");
 
                BufferedWriter bw = new BufferedWriter(vFile); 
                try{
@@ -248,8 +251,11 @@ public class AddPlace extends Activity
                    sitem.addr = cursor.getString(4);
                    sitem.commit = cursor.getString(5);
 
-                   bw.write(sitem.name + "," + sitem.time + "," + sitem.phone 
-                                                  + "," + sitem.addr + "," + sitem.commit + "\n");                  
+                   vFile.write(sitem.name + "," + sitem.time + "," + sitem.phone 
+                                                  + "," + sitem.addr + "," + sitem.commit + "\n");    
+                   
+                   Log.i(TAG, sitem.name + "," + sitem.time + "," + sitem.phone 
+                       + "," + sitem.addr + "," + sitem.commit + "\n");
                    
                    cursor.moveToNext();
                  }   
@@ -260,6 +266,7 @@ public class AddPlace extends Activity
                }
 
                vFile.close();
+               openOptionsDialog("export db ok");
             } catch (Exception e) {
                // 錯誤處理
               e.printStackTrace();
@@ -338,6 +345,10 @@ public class AddPlace extends Activity
   private Button.OnClickListener cancel_place = new Button.OnClickListener() {
     public void onClick(View v) 
     {
+      
+      Intent intent = new Intent();
+      intent.setClass( AddPlace.this, MyGoogleMap.class);
+      startActivity(intent);
       finish();
     }
   };
@@ -347,6 +358,20 @@ public class AddPlace extends Activity
     if (dbHelper != null) {
       dbHelper.close();
     }
+  }
+  
+  public boolean onKeyDown(int keyCode, KeyEvent event) 
+  {
+    if(keyCode==KeyEvent.KEYCODE_BACK)
+    {  
+      Intent intent = new Intent();
+      intent.setClass(AddPlace.this, MyGoogleMap.class);
+      startActivity(intent); 
+      finish();
+      return true;
+    }
+  
+    return super.onKeyDown(keyCode, event);  
   }
 
   private void openOptionsDialog(int index) 
@@ -373,7 +398,7 @@ public class AddPlace extends Activity
             try
             {
               db.delete(SQLiteHelper.TB_NAME, null, null);
-              openOptionsDialog("delete table for all OK");
+              
             }
             catch (Exception e)
             {
@@ -417,6 +442,7 @@ public class AddPlace extends Activity
                 {
                   
                   StringTokenizer stoken = new StringTokenizer( line, "," );
+                  Log.i(TAG, line);
                   String sname = "";
                   String ctime = "";
                   String stelephone = "";
@@ -444,6 +470,7 @@ public class AddPlace extends Activity
                         scommit = stoken.nextToken();
                         break;
                     }
+                    count++;
                   }                  
                   
                   ContentValues contentValues = new ContentValues();
@@ -458,11 +485,14 @@ public class AddPlace extends Activity
                 }
                 
                 rFile.close();
+                openOptionsDialog("import db ok");
              } catch (Exception e) {
                   // 錯誤處理
                   e.printStackTrace();
              }            
             }
+            else
+              openOptionsDialog("delete table for all OK");
           }
       }
       )

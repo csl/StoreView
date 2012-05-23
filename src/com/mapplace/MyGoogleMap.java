@@ -35,6 +35,7 @@ import android.location.Location;
 import android.location.LocationListener; 
 import android.location.LocationManager; 
 import android.os.Bundle; 
+import android.os.Handler;
 import android.os.Message;
 //import android.util.Log;
 import android.telephony.TelephonyManager;
@@ -75,6 +76,9 @@ public class MyGoogleMap extends MapActivity
   private static final int MENU_MAP_SWITCH = Menu.FIRST + 3;
   private static final int MENU_SEARCH = Menu.FIRST + 4 ;
   
+  private static final int MSG_NO_SEARCH = 1;  
+
+  
   private MyGoogleMap mMyGoogleMap = this;
   private String strLocationProvider = ""; 
 
@@ -112,11 +116,13 @@ public class MyGoogleMap extends MapActivity
   { 
     // TODO Auto-generated method stub 
     super.onCreate(icicle); 
-    setContentView(R.layout.main2); 
 
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
     WindowManager.LayoutParams.FLAG_FULLSCREEN);    
+
+    setContentView(R.layout.main2); 
+
     
     my = this;
     
@@ -157,7 +163,8 @@ public class MyGoogleMap extends MapActivity
     {
       //openOptionsDialog("no GPS rec");
       //預設的位置
-      nowGeoPoint = new GeoPoint(23, 120);
+      nowGeoPoint = getGeoByAddress("台灣雲林縣虎尾鎮文化路64號");
+      //nowGeoPoint = new GeoPoint(23, 120);
     }
 
     refreshMapViewByGeoPoint(nowGeoPoint, 
@@ -184,7 +191,7 @@ public class MyGoogleMap extends MapActivity
     menu.add(0 , MENU_MAP_INC, 0 ,R.string.str_button2);
     menu.add(0 , MENU_MAP_DEC, 0 ,R.string.str_button3);
     menu.add(0 , MENU_MAP_SWITCH, 0 ,R.string.str_button4);
-    menu.add(0 , MENU_SEARCH, 0 ,R.string.str_button4);
+    menu.add(0 , MENU_SEARCH, 0 ,R.string.str_button5);
     
     return true;  
   }
@@ -217,6 +224,7 @@ public class MyGoogleMap extends MapActivity
             intent.putExtras(bundle);
 
             startActivity(intent);
+            finish();
             break;
           case MENU_MAP_INC:
             
@@ -353,7 +361,10 @@ public class MyGoogleMap extends MapActivity
                   }
                   else
                   {
-                    openOptionsDialog("keyword " + keyword + " not found.");
+                    Message msg = new Message();
+                    msg.what = MSG_NO_SEARCH;
+                    myHandler.sendMessage(msg);      
+                    myDialog.dismiss();
                   }
                  }                 
                }.start();         
@@ -554,6 +565,20 @@ public class MyGoogleMap extends MapActivity
       e.printStackTrace(); 
     } 
   } 
+  
+  public Handler myHandler = new Handler(){
+    public void handleMessage(Message msg) {
+        switch(msg.what)
+        {
+          case MSG_NO_SEARCH:
+                openOptionsDialog("keyword not found.");
+                break;
+
+          default:
+        }
+        super.handleMessage(msg);
+    }
+};
    
   public static void refreshMapViewByCode 
   (double latitude, double longitude, 
@@ -595,19 +620,6 @@ public class MyGoogleMap extends MapActivity
   }
   
 
-
-  public void showPlaced()
-  {
-    Intent intent = new Intent();
-    intent.setClass(MyGoogleMap.this, ShowLocation.class);
-    //intent.putExtras(bundle);
-
-    startActivity(intent);
-
-  }
-
-
-  
   public String getIEMI()
   {
     return  ((TelephonyManager) getSystemService(TELEPHONY_SERVICE)).getDeviceId();
@@ -733,6 +745,7 @@ public class MyGoogleMap extends MapActivity
         {
          public void onClick(DialogInterface dialoginterface, int i)
          {
+           
          }
          }
         )

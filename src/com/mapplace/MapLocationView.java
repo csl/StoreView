@@ -110,12 +110,13 @@ public class MapLocationView extends MapActivity
   protected void onCreate(Bundle icicle) 
   { 
     // TODO Auto-generated method stub 
-    super.onCreate(icicle); 
-    setContentView(R.layout.main2); 
 
     requestWindowFeature(Window.FEATURE_NO_TITLE);
     getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
     WindowManager.LayoutParams.FLAG_FULLSCREEN);    
+    super.onCreate(icicle); 
+    setContentView(R.layout.main2); 
+
     
     my = this;
     mMapView = (MapView)findViewById(R.id.myMapView1); 
@@ -183,78 +184,7 @@ public class MapLocationView extends MapActivity
   }
   
   
-  public List<MapLocation> getMapLocations(boolean doit) 
-  {
-    if (mapLocations == null || doit == true) 
-    {
-      mapLocations = new ArrayList<MapLocation>();
 
-      try{
-        cursor = db.query(SQLiteHelper.TB_NAME, null, null, null, null, null, null);
-
-        cursor.moveToFirst();
-        
-        //no data
-        if (cursor.isAfterLast())
-        {
-          //openOptionsDialog("查無data, 請更新database");
-          return null;
-        }
-        
-        while(!cursor.isAfterLast())
-        {
-          store_item sitem = new store_item();
-          sitem.id = cursor.getString(0);
-          sitem.name = cursor.getString(1);
-          sitem.time = cursor.getString(2);
-          sitem.phone = cursor.getString(3);
-          sitem.addr = cursor.getString(4);
-          sitem.commit = cursor.getString(5);
-          MapLocation ml = new MapLocation(sitem.name, sitem);
-          
-          GeoPoint StoreGeoPoint = getGeoByAddress(sitem.addr);
-          ml.setPoint(StoreGeoPoint);
-          mapLocations.add(ml);
-          cursor.moveToNext();
-        }   
-      }catch(IllegalArgumentException e){
-        e.printStackTrace();
-        ++ DB_VERSION;
-        dbHelper.onUpgrade(db, --DB_VERSION, DB_VERSION);
-      }
-/*      
-      for (MapLocation item : mapLocations)
-      {
-        Log.i(TAG, Double.toString(item.getDist()));
-      }
-      Collections.sort(mapLocations, new Comparator<MapLocation>() {
-        public int compare(MapLocation o1, MapLocation o2) 
-        {
-          if (o1.getDist() > o2.getDist())
-            return 1;
-          else if (o1.getDist() == o2.getDist())
-            return 0;
-          else
-            return -1;
-          
-        }
-      });
-  
-      //show place
-      int count = 0;
-      for (MapLocation item : mapLocations)
-      {
-        //if (showPoint < count) break;
-        mapLocations.add(item);
-        //openOptionsDialog(count + ", " + Double.toString(item.getDist()));
-        count++;
-      }
-      */    
-    }
-    return mapLocations;
-  }
-
- 
   private GeoPoint getGeoByLocation(Location location) 
   { 
     GeoPoint gp = null; 

@@ -151,11 +151,14 @@ public class MyOverLay  extends Overlay {
     
     private void drawMapLocations(Canvas canvas, MapView	mapView, boolean shadow) 
     {
+      
+      
     	
 		Iterator<MapLocation> iterator = mLocationViewers.getMapLocations(false).iterator();
 		Point screenCoords = new Point();
     	while(iterator.hasNext()) {	   
     		MapLocation location = iterator.next();
+    		if (location.getPoint() == null) continue;
     		mapView.getProjection().toPixels(location.getPoint(), screenCoords);
 			
         Paint paint = new Paint();
