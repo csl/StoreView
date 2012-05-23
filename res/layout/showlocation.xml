@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+android:id="@+id/widget32"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+xmlns:android="http://schemas.android.com/apk/res/android"
+>
+<LinearLayout 
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+  
+  	<TextView android:layout_width="fill_parent"
+		android:layout_height="wrap_content" 
+		android:textSize = "26sp"
+		android:text="景點詳細資料:P" />
+ 
+	<TextView android:id="@+id/lcontent" 
+		android:textSize = "16sp"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" 
+		android:text="" />
+
+	<Button android:id="@+id/lnew_exit" 
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content" 
+		android:text="@string/msg_exit" />		
+</LinearLayout>
+</ScrollView>

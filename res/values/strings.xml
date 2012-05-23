@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="hello">Hello GoogleMAP</string> 
+  <string name="app_name">GoogleMAP</string>
+  
+  <string name="menu_start">開始使用</string>
+	<string name="menu_exit">帶我離開</string> 
+	
+	<string name="menu_modify">修改景點資料</string> 
+	
+	<string name="msg_exit">離開!</string>
+  <string name="str_exit_msg">確定結束程式?!</string>
+  <string name="str_exit_no">取消</string>
+ <string name="str_exit_ok">確認離開</string>
+ 
+ <!-- 標題 -->
+ 	<string name="start_con">歡迎使用本程式!!!</string>
+ 
+ <!-- 路徑清單 -->
+  <string name="new_item">類別：</string> 
+  <string name="new_name">名稱：</string> 
+  <string name="new_time">時間：</string> 
+  <string name="new_address">地址：</string> 
+  <string name="new_telephone">電話：</string>
+  <string name="new_commit">介紹：</string>
+  <string name="new_submit">確認</string> 
+   
+  <string name="new_gps">GPS：</string> 
+  <string name="new_delete">刪除</string> 
+  <string name="new_import">匯入</string> 
+  <string name="new_export">匯出</string> 
+  <string name="new_name_null">請輸入名稱</string> 
+  <string name="new_fail">例外錯誤發生</string> 
+  <string name="new_title">標題：</string> 
+  <string name="new_context">內容：</string> 
+  
+  <!-- track map -->
+  <string name="str_message">無法取得目前所在地!</string>
+
+	<!-- 主程式 -->
+  <string name="str_longitude">經度(Longitude)：</string> 
+  <string name="str_latitude">緯度(Latitude)：</string> 
+  <string name="str_button1">新增</string> 
+  <string name="str_button2">+</string> 
+  <string name="str_button3">-</string>
+  <string name="str_button4">衛星</string>  
+  <string name="str_button5">Search</string>  
+  <string name="str_button6">現在位置</string>  
+  
+  <string name="str_to">前往：</string> 
+  <string name="str_text1">測試：</string>
+  
+  <!-- 路線紀錄功能的地圖 -->
+  <string name="tr_button1">開始記錄</string> 
+  <string name="tr_button2">結束紀錄</string> 
+  <string name="tr_button3"> - </string> 
+  <string name="tr_button4"> + </string> 
+  <string name="tr_button5">上傳</string> 
+
+</resources>

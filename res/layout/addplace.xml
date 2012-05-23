@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+android:id="@+id/widget32"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+xmlns:android="http://schemas.android.com/apk/res/android"
+>
+<LinearLayout 
+  android:orientation="vertical"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent">
+  
+  <TextView android:id="@+id/show" 
+  		android:layout_width="fill_parent"
+		android:layout_height="wrap_content" 
+		android:text="新增:P" />
+ 
+	<TextView android:layout_width="fill_parent"
+		android:layout_height="wrap_content" 
+		android:text="@string/new_name" />
+		
+	<EditText android:id="@+id/name"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"/>
+
+	<TextView android:layout_width="fill_parent"
+		android:layout_height="wrap_content" 
+		android:text="@string/new_telephone" />
+		
+	<EditText android:id="@+id/telephone"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"/>
+
+	<TextView android:layout_width="fill_parent"
+		android:layout_height="fill_parent" 
+		android:text="@string/new_time" />
+		
+	<EditText android:id="@+id/stime"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"/>
+
+	<TextView android:layout_width="wrap_content"
+		android:layout_height="fill_parent" 
+		android:text="@string/new_address" />
+		
+	<EditText android:id="@+id/address"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"/>
+		
+	<TextView android:layout_width="wrap_content"
+		android:layout_height="fill_parent" 
+		android:text="@string/new_commit" />
+		
+	<EditText android:id="@+id/commit"
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"/>
+
+	<TextView android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:text="@string/new_gps" />
+	
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="horizontal" android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+		<Button android:id="@+id/new_submit" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content" 
+			android:layout_gravity="center"
+			android:text="@string/new_submit" />
+	  
+		<Button android:id="@+id/new_cancel" 
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:text="@string/str_exit_no" />  
+	</LinearLayout> 
+		
+</LinearLayout>
+</ScrollView>   
