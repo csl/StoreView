@@ -22,6 +22,8 @@ public class MapLocationViewOverLay  extends Overlay {
 	/**
 	 * Stored as global instances as one time initialization is enough
 	 */
+    String TAG = "MapLocationViewOverLay";
+  
     private Bitmap mBubbleIcon, mShadowIcon;
     
     private Bitmap mNowIcon;
@@ -88,6 +90,7 @@ public class MapLocationViewOverLay  extends Overlay {
     @Override
 	public void draw(Canvas canvas, MapView	mapView, boolean shadow) 
     {
+      drawNowGeoMap(canvas, mapView, shadow);
    		drawMapLocations(canvas, mapView, shadow);
    		drawInfoWindow(canvas, mapView, shadow);
     }
@@ -136,10 +139,13 @@ public class MapLocationViewOverLay  extends Overlay {
     
     private void drawNowGeoMap(Canvas canvas, MapView mapView, boolean shadow) 
     {
+      
+      if (MyGoogleMap.my.nowGeoPoint == null) return;
+      //Log.i(TAG, "nowGeoPoint");
       Paint paint = new Paint();
       Point myScreenCoords = new Point();
 
-      mapView.getProjection().toPixels(mLocationViewers.nowGeoPoint, myScreenCoords);
+      mapView.getProjection().toPixels(MyGoogleMap.my.nowGeoPoint, myScreenCoords);
       paint.setStrokeWidth(1);
       paint.setARGB(255, 255, 0, 0);
       paint.setStyle(Paint.Style.STROKE);
@@ -150,8 +156,8 @@ public class MapLocationViewOverLay  extends Overlay {
     
     private void drawMapLocations(Canvas canvas, MapView	mapView, boolean shadow) 
     {
-    	
-  		Point screenCoords = new Point();
+    	  if (mLocationViewers.nowGeoPoint == null) return;
+  		  Point screenCoords = new Point();
       		mapView.getProjection().toPixels(mLocationViewers.nowGeoPoint, screenCoords);
   			
           Paint paint = new Paint();

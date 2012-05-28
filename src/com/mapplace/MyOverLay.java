@@ -89,8 +89,8 @@ public class MyOverLay  extends Overlay {
 	public void draw(Canvas canvas, MapView	mapView, boolean shadow) 
     {
       drawNowGeoMap(canvas, mapView, shadow);
-   		drawMapLocations(canvas, mapView, shadow);
-   		drawInfoWindow(canvas, mapView, shadow);
+   		//drawMapLocations(canvas, mapView, shadow);
+   		//drawInfoWindow(canvas, mapView, shadow);
     }
 
     
@@ -152,6 +152,7 @@ public class MyOverLay  extends Overlay {
     private void drawMapLocations(Canvas canvas, MapView	mapView, boolean shadow) 
     {
       
+      if (mLocationViewers.getMapLocations(false) == null) return;
       
     	
 		Iterator<MapLocation> iterator = mLocationViewers.getMapLocations(false).iterator();

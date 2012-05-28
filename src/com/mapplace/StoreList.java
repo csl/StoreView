@@ -93,7 +93,7 @@ public class StoreList extends Activity {
     	    		intent.setClass(StoreList.this, MapLocationView.class);
     	    		intent.putExtras(bundle);
     	    		startActivity(intent);
-    	    		finish();
+    	    		//finish();
 	    	   }  
 	        });
         }

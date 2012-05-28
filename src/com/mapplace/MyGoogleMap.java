@@ -174,7 +174,7 @@ public class MyGoogleMap extends MapActivity
     mLocationManager01.requestLocationUpdates 
     (strLocationProvider, 2000, 10, mLocationListener01); 
      
-    getMapLocations(true);
+    //getMapLocations(true);
     
     overlay = new MyOverLay(this);
     mMapView.getOverlays().add(overlay);
