@@ -29,6 +29,7 @@ import com.sqlite.store_item;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -36,6 +37,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -44,7 +46,9 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -61,6 +65,11 @@ public class AddPlace extends Activity
   private EditText telephone;
   private EditText address;
   private EditText commit;
+  
+  static AddPlace ap;
+  
+  TextView tv;
+  EditText et;
   //private TextView gps_data;
     
   private double geoLatitude;
@@ -94,6 +103,9 @@ public class AddPlace extends Activity
     super.onCreate(savedInstanceState);
     setContentView(R.layout.addplace);
 
+    
+    ap = this;
+    
     try{
       dbHelper = new SQLiteHelper(this, SQLiteHelper.DB_NAME, null, DB_VERSION);
       db = dbHelper.getWritableDatabase();
@@ -193,8 +205,7 @@ public class AddPlace extends Activity
   @Override
   public boolean onOptionsItemSelected(MenuItem item)
   {
-    File vSDCard = null;
-    
+  
     switch (item.getItemId())
     { 
           case MENU_DELETE:
@@ -204,73 +215,110 @@ public class AddPlace extends Activity
             openOptionsDialog(2);
            break ;         
           case MENU_EXPORT:
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+            alert.setTitle("設定");
+            alert.setMessage("請輸入檔名");
             
-            try {
-               // 判斷 SD Card 有無插入
-               if( Environment.getExternalStorageState().equals(Environment.MEDIA_REMOVED) )
-               {
-                 openOptionsDialog("sdcard error");
-                 return true;
-               }
-               else
-               {
-                  // 取得 SD Card 位置
-                  vSDCard = Environment.getExternalStorageDirectory();
-               }
-               
-               // 判斷目錄是否存在
-               File vPath = new File( vSDCard.getParent() + "/" +vSDCard.getName() + "/StoreMap" );
-               if( !vPath.exists() )
-                  vPath.mkdirs();
-               
-               FileWriter vFile = new FileWriter( vSDCard.getParent() + "/" + vSDCard.getName() 
-                                                                      + "/StoreMap/db.txt" );
-               
-               Log.i(TAG, vSDCard.getParent() + "/" + vSDCard.getName() + "/StoreMap/db.txt");
+            ScrollView sv = new ScrollView(this);
+            LinearLayout ll = new LinearLayout(this);
+            ll.setOrientation(LinearLayout.VERTICAL);
+            sv.addView(ll);
+            tv = new TextView(this);
+            tv.setText("檔名: (.txt)");
+            et = new EditText(this);
+            et.setText("db");
+            ll.addView(tv);
+            ll.addView(et);
+            
+            // Set an EditText view to get user input 
+            alert.setView(sv);
+            
+            alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) 
+            {
+              String fp = et.getText().toString();
+              if (fp.equals("")) return;
+              
+              try {
+                // 判斷 SD Card 有無插入
+                if( Environment.getExternalStorageState().equals(Environment.MEDIA_REMOVED) )
+                {
+                  openOptionsDialog("sdcard error");
+                  return;
+                }
+                else
+                {
+                   // 取得 SD Card 位置
+                   vSDCard = Environment.getExternalStorageDirectory();
+                }
+                
+                // 判斷目錄是否存在
+                File vPath = new File( vSDCard.getParent() + "/" +vSDCard.getName() + "/StoreMap" );
+                if( !vPath.exists() )
+                   vPath.mkdirs();
+                
+                FileWriter vFile = new FileWriter( vSDCard.getParent() + "/" + vSDCard.getName() 
+                                                                       + "/StoreMap/" + fp + ".txt");
+                
+                Log.i(TAG, vSDCard.getParent() + "/" + vSDCard.getName() + "/StoreMap/db.txt");
 
-               BufferedWriter bw = new BufferedWriter(vFile); 
-               try{
-                 cursor = db.query(SQLiteHelper.TB_NAME, null, null, null, null, null, null);
+                BufferedWriter bw = new BufferedWriter(vFile); 
+                try{
+                  cursor = db.query(SQLiteHelper.TB_NAME, null, null, null, null, null, null);
 
-                 cursor.moveToFirst();
+                  cursor.moveToFirst();
+                  
+                  //no data
+                  if (cursor.isAfterLast())
+                  {
+                    openOptionsDialog("查無data, 請更新database");
+                    return;
+                  }
+                  
+                  while(!cursor.isAfterLast())
+                  {
+                    store_item sitem = new store_item();
+                    sitem.id = cursor.getString(0);
+                    sitem.name = cursor.getString(1);
+                    sitem.time = cursor.getString(2);
+                    sitem.phone = cursor.getString(3);
+                    sitem.addr = cursor.getString(4);
+                    sitem.commit = cursor.getString(5);
+
+                    vFile.write(sitem.name + "," + sitem.time + "," + sitem.phone 
+                                                   + "," + sitem.addr + "," + sitem.commit + "\n");    
+                    
+                    Log.i(TAG, sitem.name + "," + sitem.time + "," + sitem.phone 
+                        + "," + sitem.addr + "," + sitem.commit + "\n");
+                    
+                    cursor.moveToNext();
+                  }   
+                }catch(IllegalArgumentException e){
+                  e.printStackTrace();
+                  ++ DB_VERSION;
+                  dbHelper.onUpgrade(db, --DB_VERSION, DB_VERSION);
+                }
+
+                vFile.close();
+                openOptionsDialog("匯出成功");
+             } catch (Exception e) {
+                // 錯誤處理
+               e.printStackTrace();
+             }            
+               
+            }
+            });
+          
+            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) 
+                {
                  
-                 //no data
-                 if (cursor.isAfterLast())
-                 {
-                   openOptionsDialog("查無data, 請更新database");
-                   return true;
-                 }
-                 
-                 while(!cursor.isAfterLast())
-                 {
-                   store_item sitem = new store_item();
-                   sitem.id = cursor.getString(0);
-                   sitem.name = cursor.getString(1);
-                   sitem.time = cursor.getString(2);
-                   sitem.phone = cursor.getString(3);
-                   sitem.addr = cursor.getString(4);
-                   sitem.commit = cursor.getString(5);
-
-                   vFile.write(sitem.name + "," + sitem.time + "," + sitem.phone 
-                                                  + "," + sitem.addr + "," + sitem.commit + "\n");    
-                   
-                   Log.i(TAG, sitem.name + "," + sitem.time + "," + sitem.phone 
-                       + "," + sitem.addr + "," + sitem.commit + "\n");
-                   
-                   cursor.moveToNext();
-                 }   
-               }catch(IllegalArgumentException e){
-                 e.printStackTrace();
-                 ++ DB_VERSION;
-                 dbHelper.onUpgrade(db, --DB_VERSION, DB_VERSION);
-               }
-
-               vFile.close();
-               openOptionsDialog("export db ok");
-            } catch (Exception e) {
-               // 錯誤處理
-              e.printStackTrace();
-            }            
+                }
+              });
+          
+              alert.show();              
             break ;
       }
     
@@ -335,7 +383,7 @@ public class AddPlace extends Activity
       if (error == 0)
       {
         if (modify == 0)
-          openOptionsDialog("Insert Location OK");
+          openOptionsDialog("新增成功");
         else
           openOptionsDialog("Modify Location OK");
       }
@@ -407,92 +455,132 @@ public class AddPlace extends Activity
             
             if (cindex == 2)
             {
-              // 判斷 SD Card 有無插入
-              if( Environment.getExternalStorageState().equals(Environment.MEDIA_REMOVED) )
-              {
-                openOptionsDialog("sdcard error");
-                return;
-              }
-              else
-              {
-                 // 取得 SD Card 位置
-                 vSDCard = Environment.getExternalStorageDirectory();
-              }
+              AlertDialog.Builder alert = new AlertDialog.Builder(ap);
+
+              alert.setTitle("設定");
+              alert.setMessage("請輸入檔名");
               
-              try
+              ScrollView sv = new ScrollView(ap);
+              LinearLayout ll = new LinearLayout(ap);
+              ll.setOrientation(LinearLayout.VERTICAL);
+              sv.addView(ll);
+              tv = new TextView(ap);
+              tv.setText("檔名: (.txt)");
+              et = new EditText(ap);
+              et.setText("db");
+              ll.addView(tv);
+              ll.addView(et);
+              
+              // Set an EditText view to get user input 
+              alert.setView(sv);
+              
+              alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+              public void onClick(DialogInterface dialog, int whichButton) 
               {
-                // 判斷目錄是否存在
-                File vPath = new File( vSDCard.getParent() + vSDCard.getName() + "/StoreMap" );
-                if( !vPath.exists() )
-                   vPath.mkdirs();
+                String fp = et.getText().toString();
+                if (fp.equals("")) return;
                 
-                FileReader rFile = new FileReader( vSDCard.getParent() + "/" + vSDCard.getName() 
-                                                                       + "/StoreMap/db.txt" );
-                
-                if (rFile == null)
+                // 判斷 SD Card 有無插入
+                if( Environment.getExternalStorageState().equals(Environment.MEDIA_REMOVED) )
                 {
-                  openOptionsDialog("no import data");
+                  openOptionsDialog("sdcard error");
                   return;
                 }
-                
-                BufferedReader br = new BufferedReader(rFile);
-                String line = null;
-
-                while((line = br.readLine()) !=null)
+                else
                 {
-                  
-                  StringTokenizer stoken = new StringTokenizer( line, "," );
-                  Log.i(TAG, line);
-                  String sname = "";
-                  String ctime = "";
-                  String stelephone = "";
-                  String saddress = "";
-                  String scommit = "";
-
-                  int count=0;
-                  while( stoken.hasMoreTokens() )
-                  {
-                    switch (count)
-                    {
-                      case 0:
-                        sname = stoken.nextToken();
-                        break;
-                      case 1:
-                        ctime = stoken.nextToken();
-                        break;
-                      case 2:
-                        stelephone = stoken.nextToken();
-                        break;
-                      case 3:
-                        saddress = stoken.nextToken();
-                        break;
-                      case 4:
-                        scommit = stoken.nextToken();
-                        break;
-                    }
-                    count++;
-                  }                  
-                  
-                  ContentValues contentValues = new ContentValues();
-                  contentValues.put(store_item.NAME, sname);
-                  contentValues.put(store_item.TIME, ctime);
-                  contentValues.put(store_item.PHONE, stelephone);
-                  contentValues.put(store_item.ADDR, saddress);
-                  contentValues.put(store_item.COMMIT, scommit);
-                  Log.i(TAG, sname + "," +  saddress);
-                  
-                  db.insert(SQLiteHelper.TB_NAME, null, contentValues);
+                   // 取得 SD Card 位置
+                   vSDCard = Environment.getExternalStorageDirectory();
                 }
                 
-                rFile.close();
-                openOptionsDialog("import db ok");
-             } catch (Exception e) {
-                  // 錯誤處理
-                  e.printStackTrace();
-             }            
+                try
+                {
+                  // 判斷目錄是否存在
+                  File vPath = new File( vSDCard.getParent() + vSDCard.getName() + "/StoreMap" );
+                  if( !vPath.exists() )
+                     vPath.mkdirs();
+                  
+                  FileReader rFile = new FileReader( vSDCard.getParent() + "/" + vSDCard.getName() 
+                                                                         + "/StoreMap/" + fp + ".txt" );
+                  
+                  if (rFile == null)
+                  {
+                    openOptionsDialog("no import data");
+                    return;
+                  }
+                  
+                  BufferedReader br = new BufferedReader(rFile);
+                  String line = null;
+
+                  while((line = br.readLine()) !=null)
+                  {
+                    
+                    StringTokenizer stoken = new StringTokenizer( line, "," );
+                    Log.i(TAG, line);
+                    String sname = "";
+                    String ctime = "";
+                    String stelephone = "";
+                    String saddress = "";
+                    String scommit = "";
+
+                    int count=0;
+                    while( stoken.hasMoreTokens() )
+                    {
+                      switch (count)
+                      {
+                        case 0:
+                          sname = stoken.nextToken();
+                          break;
+                        case 1:
+                          ctime = stoken.nextToken();
+                          break;
+                        case 2:
+                          stelephone = stoken.nextToken();
+                          break;
+                        case 3:
+                          saddress = stoken.nextToken();
+                          break;
+                        case 4:
+                          scommit = stoken.nextToken();
+                          break;
+                      }
+                      count++;
+                    }                  
+                    
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put(store_item.NAME, sname);
+                    contentValues.put(store_item.TIME, ctime);
+                    contentValues.put(store_item.PHONE, stelephone);
+                    contentValues.put(store_item.ADDR, saddress);
+                    contentValues.put(store_item.COMMIT, scommit);
+                    Log.i(TAG, sname + "," +  saddress);
+                    
+                    db.insert(SQLiteHelper.TB_NAME, null, contentValues);
+                  }
+                  
+                  rFile.close();
+                  openOptionsDialog("匯入成功");
+               } catch (Exception e) {
+                    // 錯誤處理
+                    e.printStackTrace();
+               }            
+                
+              }
+              });
+            
+              alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                  public void onClick(DialogInterface dialog, int whichButton) 
+                  {
+                   
+                  }
+                });
+            
+                alert.show();              
+              
+              
+              
             }
             else
-              openOptionsDialog("delete table for all OK");
+              openOptionsDialog("刪除所有資料表");
           }
       }
       )

@@ -60,7 +60,10 @@ public class MapLocation {
   
   public void calDist(GeoPoint gps)
   {
-    distance =  GetDistance(gps, mPoint);
+    if (gps == null || mPoint == null)
+      distance = 9999;
+    else
+      distance =  GetDistance(gps, mPoint);
   }
 
   public double getDist()

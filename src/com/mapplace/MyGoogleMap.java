@@ -75,8 +75,10 @@ public class MyGoogleMap extends MapActivity
   private static final int MENU_MAP_DEC = Menu.FIRST + 2;
   private static final int MENU_MAP_SWITCH = Menu.FIRST + 3;
   private static final int MENU_SEARCH = Menu.FIRST + 4 ;
+  private static final int MENU_EXIT = Menu.FIRST + 5 ;
   
-  private static final int MSG_NO_SEARCH = 1;  
+  private static final int MSG_INPUT_EMPTY = 1;
+  private static final int MSG_NO_SEARCH = 2;  
 
   
   private MyGoogleMap mMyGoogleMap = this;
@@ -91,7 +93,7 @@ public class MyGoogleMap extends MapActivity
   private MyOverLay overlay;
   private List<MapLocation> mapLocations;
   
-  public List<store_item> search_list;
+  public List<MapLocation> search_list;
 
   private int intZoomLevel=0;//geoLatitude,geoLongitude; 
   public GeoPoint nowGeoPoint;
@@ -118,8 +120,6 @@ public class MyGoogleMap extends MapActivity
     super.onCreate(icicle); 
 
     requestWindowFeature(Window.FEATURE_NO_TITLE);
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-    WindowManager.LayoutParams.FLAG_FULLSCREEN);    
 
     setContentView(R.layout.main2); 
 
@@ -136,7 +136,7 @@ public class MyGoogleMap extends MapActivity
       dbHelper.onUpgrade(db, --DB_VERSION, DB_VERSION);
     }            
 
-    search_list = new ArrayList<store_item>();
+    search_list = new ArrayList<MapLocation>();
     
     str = 1;
    
@@ -192,6 +192,7 @@ public class MyGoogleMap extends MapActivity
     menu.add(0 , MENU_MAP_DEC, 0 ,R.string.str_button3);
     menu.add(0 , MENU_MAP_SWITCH, 0 ,R.string.str_button4);
     menu.add(0 , MENU_SEARCH, 0 ,R.string.str_button5);
+    menu.add(0 , MENU_EXIT, 0 ,R.string.msg_exit);
     
     return true;  
   }
@@ -302,6 +303,15 @@ public class MyGoogleMap extends MapActivity
                   search_list.clear();
                   String keyword = et.getText().toString();
                   
+                  if (keyword.equals(""))
+                  {
+                    Message msg = new Message();
+                    msg.what = MSG_INPUT_EMPTY;
+                    myHandler.sendMessage(msg);      
+                    myDialog.dismiss();
+                    return;
+                  }
+                  
                   try{
                     cursor = db.query(SQLiteHelper.TB_NAME, null, null, null, null, null, null);
 
@@ -343,7 +353,15 @@ public class MyGoogleMap extends MapActivity
                       else
                       {
                         Log.i(TAG, "found");
-                        search_list.add(sitem);
+                        MapLocation ml = new MapLocation(sitem.name, sitem);
+                        GeoPoint StoreGeoPoint = getGeoByAddress(sitem.addr);
+                        if (StoreGeoPoint == null)
+                        {
+                          Log.i(TAG, "StoreGeoPoint");
+                        }
+                        ml.setPoint(StoreGeoPoint);                        
+                        ml.calDist(nowGeoPoint);
+                        search_list.add(ml);
                       }
                       cursor.moveToNext();
                     }   
@@ -368,7 +386,7 @@ public class MyGoogleMap extends MapActivity
                   }
                  }                 
                }.start();         
-                        
+               
             }
             });
           
@@ -381,6 +399,10 @@ public class MyGoogleMap extends MapActivity
           
               alert.show();              
             
+            break;
+          case MENU_EXIT:
+            android.os.Process.killProcess(android.os.Process.myPid());           
+            finish();
             break;
       }
     
@@ -570,8 +592,11 @@ public class MyGoogleMap extends MapActivity
     public void handleMessage(Message msg) {
         switch(msg.what)
         {
+          case MSG_INPUT_EMPTY:
+            openOptionsDialog("輸入為空!!");
+            break;
           case MSG_NO_SEARCH:
-                openOptionsDialog("keyword not found.");
+                openOptionsDialog("找不到關鍵字");
                 break;
 
           default:

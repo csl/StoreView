@@ -1,6 +1,8 @@
 package com.mapplace;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import java.util.HashMap;
 
@@ -110,16 +112,35 @@ public class StoreList extends Activity {
  
 		list_id.clear();
 		
+		
+		
+		 for (MapLocation item : MyGoogleMap.my.search_list)
+	   {
+	      Log.i("toDO", Double.toString(item.getDist()));
+	   }
+	   Collections.sort(MyGoogleMap.my.search_list, new Comparator<MapLocation>() {
+	      public int compare(MapLocation o1, MapLocation o2)
+	      {
+	        if (o1.getDist() > o2.getDist())
+	          return 1;
+	        else if (o1.getDist() == o2.getDist())
+	          return 0;
+	        else
+	          return -1;
+	        
+	      }
+	    });		
+		
 		if (search_list_size > 10)
 		{
       for (int j=search_list_size-1; j>=search_list_size-10; j--)
       {
         HashMap<String, Object> map = new HashMap<String, Object>();
-        Log.i("VALUE", MyGoogleMap.my.search_list.get(j).id);
-        map.put("ItemTitle", MyGoogleMap.my.search_list.get(j).name);
-        map.put("ItemText", "營業時間: " + MyGoogleMap.my.search_list.get(j).time + ", 地址：" + MyGoogleMap.my.search_list.get(j).addr);
+        Log.i("VALUE", MyGoogleMap.my.search_list.get(j).getStoreItem().id);
+        map.put("ItemTitle", MyGoogleMap.my.search_list.get(j).getStoreItem().name);
+        map.put("ItemText", "營業時間: " + MyGoogleMap.my.search_list.get(j).getStoreItem().time + ", 地址：" + MyGoogleMap.my.search_list.get(j).getStoreItem().addr);
         listitem.add(map);
-        list_id.add(MyGoogleMap.my.search_list.get(j));
+        list_id.add(MyGoogleMap.my.search_list.get(j).getStoreItem());
       }
 		}
 		else
@@ -127,11 +148,11 @@ public class StoreList extends Activity {
       for (int j=search_list_size-1; j>=0; j--)
   		{
   			HashMap<String, Object> map = new HashMap<String, Object>();
-  			Log.i("VALUE", MyGoogleMap.my.search_list.get(j).id);
-  			map.put("ItemTitle", MyGoogleMap.my.search_list.get(j).name);
-  			map.put("ItemText", "營業時間: " + MyGoogleMap.my.search_list.get(j).time + ", 地址：" + MyGoogleMap.my.search_list.get(j).addr);
+  			Log.i("VALUE", MyGoogleMap.my.search_list.get(j).getStoreItem().id);
+  			map.put("ItemTitle", MyGoogleMap.my.search_list.get(j).getStoreItem().name);
+  			map.put("ItemText", "營業時間: " + MyGoogleMap.my.search_list.get(j).getStoreItem().time + ", 地址：" + MyGoogleMap.my.search_list.get(j).getStoreItem().addr);
   			listitem.add(map);			
-        list_id.add(MyGoogleMap.my.search_list.get(j));
+        list_id.add(MyGoogleMap.my.search_list.get(j).getStoreItem());
   		}
 		}
 		  

@@ -69,7 +69,9 @@ public class MapLocationView extends MapActivity
   private String TAG ="MapLocationView";
   static public MapLocationView my;
   
-  private static final int MENU_EXIT = Menu.FIRST;
+  private static final int MENU_MAP_INC = Menu.FIRST;
+  private static final int MENU_MAP_DEC = Menu.FIRST + 1;
+  private static final int MENU_EXIT = Menu.FIRST + 2;
   
   private MapLocationView mMyGoogleMap = this;
   private String strLocationProvider = ""; 
@@ -112,8 +114,6 @@ public class MapLocationView extends MapActivity
     // TODO Auto-generated method stub 
 
     requestWindowFeature(Window.FEATURE_NO_TITLE);
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-    WindowManager.LayoutParams.FLAG_FULLSCREEN);    
     super.onCreate(icicle); 
     setContentView(R.layout.main2); 
 
@@ -163,25 +163,46 @@ public class MapLocationView extends MapActivity
 
     super.onCreateOptionsMenu(menu);
     
-    //menu.add(0 , MENU_EXIT, 0 ,R.string.str_button1);
+    menu.add(0 , MENU_MAP_INC, 0 ,R.string.str_button2);
+    menu.add(0 , MENU_MAP_DEC, 0 ,R.string.str_button3);
+    menu.add(0 , MENU_EXIT, 0 ,R.string.msg_exit);
     
     return true;  
   }
 
-  @Override
   public boolean onOptionsItemSelected(MenuItem item)
   {
     Intent intent = new Intent() ;
     
     switch (item.getItemId())
-    { 
-          case MENU_EXIT:
-            finish();
-            break;
-      }
+    {
+      case MENU_MAP_INC:
+        
+        intZoomLevel++; 
+        if(intZoomLevel>mMapView.getMaxZoomLevel()) 
+        { 
+          intZoomLevel = mMapView.getMaxZoomLevel(); 
+        } 
+        mMapController01.setZoom(intZoomLevel); 
+        
+        break;
+      case MENU_MAP_DEC:
+
+        intZoomLevel--; 
+        if(intZoomLevel<1) 
+        { 
+          intZoomLevel = 1; 
+        } 
+        mMapController01.setZoom(intZoomLevel); 
+        
+        break;
+      case MENU_EXIT:
+        finish();
+        break;
+    }  
     
-  return true ;
-  }
+    return true;
+   }
   
   
 
